@@ -30,17 +30,16 @@ ADMIN_INFO = """
 
 @dp.message()
 async def handle_message(message: Message):
+    if message.text == "/start":
+        return
 
     await bot.send_message(
         chat_id=ADMIN_CHAT_ID,
-        text=ADMIN_INFO,
+        text=(
+            f"{message.text}\n\n"
+            f"{ADMIN_INFO}"
+        ),
         link_preview_options=LinkPreviewOptions(is_disabled=True)
-    )
-
-    await bot.copy_message(
-        chat_id=ADMIN_CHAT_ID,
-        from_chat_id=message.chat.id,
-        message_id=message.message_id,
     )
 
     user = message.from_user
@@ -55,6 +54,7 @@ async def handle_message(message: Message):
         )
     )
 
+    await message.answer("ОТДАЙ ЮЗ")
 
 async def main():
     await dp.start_polling(bot)
