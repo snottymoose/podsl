@@ -38,7 +38,7 @@ async def handle_message(message: Message):
         await bot.send_message(
             chat_id=ADMIN_CHAT_ID,
             text=(
-                f"{message.text}\n"
+                f"{message.text}\n\n"
                 f"{ADMIN_INFO.strip()}"
             ),
             link_preview_options=LinkPreviewOptions(is_disabled=True)
