@@ -11,7 +11,7 @@ from aiogram.types import LinkPreviewOptions
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_CHAT_ID = int(os.getenv("ADMIN_CHAT"))
+ADMIN_CHAT_ID = int(os.getenv("ADMIN_CHAT_ID"))
 
 bot = Bot(
     token=BOT_TOKEN,
@@ -59,3 +59,11 @@ async def handle_message(message: Message):
             f"тг айди: <code>{user.id}</code>"
         )
     )
+
+
+async def main():
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
