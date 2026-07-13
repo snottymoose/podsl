@@ -11,7 +11,7 @@ from aiogram.types import LinkPreviewOptions
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_CHAT_ID = int(os.getenv("-1004326079237"))
+ADMIN_CHAT_ID = int(os.getenv("-1004313216807"))
 
 bot = Bot(
     token=BOT_TOKEN,
