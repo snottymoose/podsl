@@ -30,17 +30,45 @@ ADMIN_INFO = """
 
 @dp.message()
 async def handle_message(message: Message):
+
     if message.text == "/start":
         return
 
-    await bot.send_message(
-        chat_id=ADMIN_CHAT_ID,
-        text=(
-            f"{message.text}\n\n"
-            f"{ADMIN_INFO}"
-        ),
-        link_preview_options=LinkPreviewOptions(is_disabled=True)
-    )
+    if message.text:
+        await bot.send_message(
+            chat_id=ADMIN_CHAT_ID,
+            text=(
+                f"{message.text}\n"
+                f"{ADMIN_INFO.strip()}"
+            ),
+            link_preview_options=LinkPreviewOptions(is_disabled=True)
+        )
+
+    elif message.photo:
+        await bot.send_photo(
+            chat_id=ADMIN_CHAT_ID,
+            photo=message.photo[-1].file_id,
+            caption=message.caption if message.caption else None
+        )
+
+        await bot.send_message(
+            chat_id=ADMIN_CHAT_ID,
+            text=ADMIN_INFO.strip(),
+            link_preview_options=LinkPreviewOptions(is_disabled=True)
+        )
+
+    else:
+        await bot.forward_message(
+            chat_id=ADMIN_CHAT_ID,
+            from_chat_id=message.chat.id,
+            message_id=message.message_id
+        )
+
+        await bot.send_message(
+            chat_id=ADMIN_CHAT_ID,
+            text=ADMIN_INFO.strip(),
+            link_preview_options=LinkPreviewOptions(is_disabled=True)
+        )
 
     user = message.from_user
     username = f"@{user.username}" if user.username else "-"
