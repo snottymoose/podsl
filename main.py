@@ -112,33 +112,58 @@ async def handle_message(message: Message):
         return
 
 
-    if message.photo or message.video or message.document:
+    if message.photo:
 
-        text = (
+        caption = (
             f"{message.caption}\n\n{ADMIN_INFO.strip()}"
             if message.caption
             else ADMIN_INFO.strip()
         )
 
-        await send_admin_info(text)
-
-        await bot.copy_message(
+        await bot.send_photo(
             chat_id=ADMIN_CHAT_ID,
-            from_chat_id=message.chat.id,
-            message_id=message.message_id
+            photo=message.photo[-1].file_id,
+            caption=caption
         )
 
         await finish(message)
         return
 
 
-    if message.text:
+    if message.video:
 
-        await send_admin_info(
-            f"{message.text}\n\n{ADMIN_INFO.strip()}"
+        caption = (
+            f"{message.caption}\n\n{ADMIN_INFO.strip()}"
+            if message.caption
+            else ADMIN_INFO.strip()
+        )
+
+        await bot.send_video(
+            chat_id=ADMIN_CHAT_ID,
+            video=message.video.file_id,
+            caption=caption
         )
 
         await finish(message)
+        return
+
+
+    if message.document:
+
+        caption = (
+            f"{message.caption}\n\n{ADMIN_INFO.strip()}"
+            if message.caption
+            else ADMIN_INFO.strip()
+        )
+
+        await bot.send_document(
+            chat_id=ADMIN_CHAT_ID,
+            document=message.document.file_id,
+            caption=caption
+        )
+
+        await finish(message)
+        return
 
 
 
