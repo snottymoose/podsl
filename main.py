@@ -4,11 +4,10 @@ import os
 from collections import defaultdict
 
 from aiogram import Bot, Dispatcher
-from aiogram.types import Message
+from aiogram.types import Message, LinkPreviewOptions
+from aiogram.enums import ParseMode, ChatType
+from aiogram.filters import CommandStart
 from dotenv import load_dotenv
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
-from aiogram.types import LinkPreviewOptions
 
 
 load_dotenv()
@@ -19,7 +18,9 @@ ADMIN_CHAT_ID = -1004313216807
 
 bot = Bot(
     token=BOT_TOKEN,
-    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+    default=__import__("aiogram").client.default.DefaultBotProperties(
+        parse_mode=ParseMode.HTML
+    )
 )
 
 dp = Dispatcher()
@@ -36,137 +37,16 @@ ADMIN_INFO = """
 media_groups = defaultdict(list)
 
 
-@dp.message()
-async def handle_message(message: Message):
+async def send_admin_info(text):
+    await bot.send_message(
+        chat_id=ADMIN_CHAT_ID,
+        text=text,
+        link_preview_options=LinkPreviewOptions(is_disabled=True)
+    )
 
-    if message.text == "/start":
-        return
 
-    user = message.from_user
+async def send_user_info(user):
     username = f"@{user.username}" if user.username else "-"
-
-
-    if message.media_group_id:
-
-        media_groups[message.media_group_id].append(message)
-
-        await asyncio.sleep(1)
-
-        messages = media_groups.pop(message.media_group_id, [])
-
-        if not messages:
-            return
-
-
-        first = messages[0]
-
-        if first.caption:
-            text = (
-                f"{first.caption}\n\n"
-                f"{ADMIN_INFO.strip()}"
-            )
-        else:
-            text = ADMIN_INFO.strip()
-
-
-        await bot.send_message(
-            chat_id=ADMIN_CHAT_ID,
-            text=text,
-            link_preview_options=LinkPreviewOptions(is_disabled=True)
-        )
-
-
-        for msg in messages:
-
-            if msg.photo:
-                await bot.send_photo(
-                    chat_id=ADMIN_CHAT_ID,
-                    photo=msg.photo[-1].file_id
-                )
-
-            elif msg.video:
-                await bot.send_video(
-                    chat_id=ADMIN_CHAT_ID,
-                    video=msg.video.file_id
-                )
-
-            elif msg.document:
-                await bot.send_document(
-                    chat_id=ADMIN_CHAT_ID,
-                    document=msg.document.file_id
-                )
-
-
-    elif message.photo:
-
-        if message.caption:
-            text = (
-                f"{message.caption}\n\n"
-                f"{ADMIN_INFO.strip()}"
-            )
-        else:
-            text = ADMIN_INFO.strip()
-
-
-        await bot.send_message(
-            chat_id=ADMIN_CHAT_ID,
-            text=text,
-            link_preview_options=LinkPreviewOptions(is_disabled=True)
-        )
-
-
-        await bot.send_photo(
-            chat_id=ADMIN_CHAT_ID,
-            photo=message.photo[-1].file_id
-        )
-
-
-    elif message.document:
-
-        if message.caption:
-            text = (
-                f"{message.caption}\n\n"
-                f"{ADMIN_INFO.strip()}"
-            )
-        else:
-            text = ADMIN_INFO.strip()
-
-        await bot.send_message(
-            chat_id=ADMIN_CHAT_ID,
-            text=text,
-            link_preview_options=LinkPreviewOptions(is_disabled=True)
-        )
-
-        await bot.send_document(
-            chat_id=ADMIN_CHAT_ID,
-            document=message.document.file_id
-        )
-
-    elif message.document:
-
-        await bot.send_message(
-            chat_id=ADMIN_CHAT_ID,
-            text=ADMIN_INFO.strip(),
-            link_preview_options=LinkPreviewOptions(is_disabled=True)
-        )
-
-
-        await bot.send_document(
-            chat_id=ADMIN_CHAT_ID,
-            document=message.document.file_id
-        )
-
-
-    elif message.text:
-
-        await bot.send_message(
-            chat_id=ADMIN_CHAT_ID,
-            text=(
-                f"{message.text}\n\n"
-                f"{ADMIN_INFO.strip()}"
-            ),
-            link_preview_options=LinkPreviewOptions(is_disabled=True)
-        )
 
     await bot.send_message(
         chat_id=ADMIN_CHAT_ID,
@@ -178,7 +58,87 @@ async def handle_message(message: Message):
     )
 
 
+async def finish(message: Message):
+    await send_user_info(message.from_user)
     await message.answer("ОТДАЙ ЮЗ")
+
+
+@dp.message()
+async def handle_message(message: Message):
+
+    if message.chat.type != ChatType.PRIVATE:
+        return
+
+    if message.text == "/start":
+        return
+
+
+    # Альбомы
+    if message.media_group_id:
+
+        media_groups[message.media_group_id].append(message)
+
+        await asyncio.sleep(1)
+
+        messages = media_groups.pop(
+            message.media_group_id,
+            []
+        )
+
+        if not messages:
+            return
+
+
+        first = messages[0]
+
+        text = (
+            f"{first.caption}\n\n{ADMIN_INFO.strip()}"
+            if first.caption
+            else ADMIN_INFO.strip()
+        )
+
+        await send_admin_info(text)
+
+
+        for msg in messages:
+            await bot.copy_message(
+                chat_id=ADMIN_CHAT_ID,
+                from_chat_id=msg.chat.id,
+                message_id=msg.message_id
+            )
+
+
+        await finish(message)
+        return
+
+
+    if message.photo or message.video or message.document:
+
+        text = (
+            f"{message.caption}\n\n{ADMIN_INFO.strip()}"
+            if message.caption
+            else ADMIN_INFO.strip()
+        )
+
+        await send_admin_info(text)
+
+        await bot.copy_message(
+            chat_id=ADMIN_CHAT_ID,
+            from_chat_id=message.chat.id,
+            message_id=message.message_id
+        )
+
+        await finish(message)
+        return
+
+
+    if message.text:
+
+        await send_admin_info(
+            f"{message.text}\n\n{ADMIN_INFO.strip()}"
+        )
+
+        await finish(message)
 
 
 
