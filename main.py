@@ -80,56 +80,68 @@ async def handle_message(message: Message):
 
         media_groups[group_id].append(message)
 
+
         if group_id in media_group_tasks:
             media_group_tasks[group_id].cancel()
 
 
         async def process_album():
 
-            await asyncio.sleep(1)
+            try:
+                await asyncio.sleep(1)
 
 
-            messages = media_groups.pop(group_id, [])
+                messages = media_groups.pop(group_id, [])
 
 
-            if not messages:
-                return
+                if not messages:
+                    return
 
 
-            messages.sort(key=lambda x: x.message_id)
+                messages.sort(key=lambda x: x.message_id)
 
 
-            first = messages[0]
-
-
-            text = (
-                f"{first.caption}\n\n{ADMIN_INFO.strip()}"
-                if first.caption
-                else ADMIN_INFO.strip()
-            )
-
-            await send_admin_info(text)
-
-
-        for msg in messages:
-
-            if msg.photo:
-                await bot.send_photo(
-                    chat_id=ADMIN_CHAT_ID,
-                    photo=msg.photo[-1].file_id
+                first = next(
+                    (m for m in messages if m.caption),
+                    messages[0]
                 )
 
 
-            await finish(first)
+                text = (
+                    f"{first.caption}\n\n{ADMIN_INFO.strip()}"
+                    if first.caption
+                    else ADMIN_INFO.strip()
+                )
 
 
-            media_group_tasks.pop(group_id, None)
+                await send_admin_info(text)
+
+
+                for msg in messages:
+
+                    if msg.photo:
+                        await bot.send_photo(
+                            chat_id=ADMIN_CHAT_ID,
+                            photo=msg.photo[-1].file_id
+                        )
+
+
+                await send_user_info(first.from_user)
+
+
+                await first.answer("ОТДАЙ ЮЗ")
+
+
+            finally:
+
+                media_group_tasks.pop(group_id, None)
 
 
 
         media_group_tasks[group_id] = asyncio.create_task(
             process_album()
         )
+
 
         return
 
