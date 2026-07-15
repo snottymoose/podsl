@@ -121,18 +121,25 @@ async def handle_message(message: Message):
         )
 
 
-    elif message.video:
+    elif message.document:
+
+        if message.caption:
+            text = (
+                f"{message.caption}\n\n"
+                f"{ADMIN_INFO.strip()}"
+            )
+        else:
+            text = ADMIN_INFO.strip()
 
         await bot.send_message(
             chat_id=ADMIN_CHAT_ID,
-            text=ADMIN_INFO.strip(),
+            text=text,
             link_preview_options=LinkPreviewOptions(is_disabled=True)
         )
 
-
-        await bot.send_video(
+        await bot.send_document(
             chat_id=ADMIN_CHAT_ID,
-            video=message.video.file_id
+            document=message.document.file_id
         )
 
     elif message.document:
