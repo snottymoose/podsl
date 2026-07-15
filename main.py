@@ -111,12 +111,12 @@ async def handle_message(message: Message):
             await send_admin_info(text)
 
 
-            for msg in messages:
+        for msg in messages:
 
-                await bot.copy_message(
+            if msg.photo:
+                await bot.send_photo(
                     chat_id=ADMIN_CHAT_ID,
-                    from_chat_id=msg.chat.id,
-                    message_id=msg.message_id
+                    photo=msg.photo[-1].file_id
                 )
 
 
