@@ -126,6 +126,20 @@ async def handle_message(message: Message):
                         )
 
 
+                    elif msg.video:
+                        await bot.send_video(
+                            chat_id=ADMIN_CHAT_ID,
+                            video=msg.video.file_id
+                        )
+
+
+                    elif msg.document:
+                        await bot.send_document(
+                            chat_id=ADMIN_CHAT_ID,
+                            document=msg.document.file_id
+                        )
+
+
                 await send_user_info(first.from_user)
 
 
