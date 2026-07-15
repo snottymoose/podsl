@@ -35,6 +35,7 @@ ADMIN_INFO = """
 
 
 media_groups = defaultdict(list)
+media_group_tasks = {}
 
 
 async def send_admin_info(text):
@@ -73,42 +74,63 @@ async def handle_message(message: Message):
         return
 
 
-    # Альбомы
     if message.media_group_id:
 
-        media_groups[message.media_group_id].append(message)
+        group_id = message.media_group_id
 
-        await asyncio.sleep(1)
+        media_groups[group_id].append(message)
 
-        messages = media_groups.pop(
-            message.media_group_id,
-            []
-        )
-
-        if not messages:
-            return
+        if group_id in media_group_tasks:
+            media_group_tasks[group_id].cancel()
 
 
-        first = messages[0]
+        async def process_album():
 
-        text = (
-            f"{first.caption}\n\n{ADMIN_INFO.strip()}"
-            if first.caption
-            else ADMIN_INFO.strip()
-        )
-
-        await send_admin_info(text)
+            await asyncio.sleep(1)
 
 
-        for msg in messages:
-            await bot.copy_message(
-                chat_id=ADMIN_CHAT_ID,
-                from_chat_id=msg.chat.id,
-                message_id=msg.message_id
+            messages = media_groups.pop(group_id, [])
+
+
+            if not messages:
+                return
+
+
+            messages.sort(key=lambda x: x.message_id)
+
+
+            first = messages[0]
+
+
+            text = (
+                f"{first.caption}\n\n{ADMIN_INFO.strip()}"
+                if first.caption
+                else ADMIN_INFO.strip()
             )
 
+            await send_admin_info(text)
 
-        await finish(message)
+
+            for msg in messages:
+
+                await bot.copy_message(
+                    chat_id=ADMIN_CHAT_ID,
+                    from_chat_id=msg.chat.id,
+                    message_id=msg.message_id
+                )
+
+
+            await finish(first)
+
+
+            media_group_tasks.pop(group_id, None)
+
+
+
+        media_group_tasks[group_id] = asyncio.create_task(
+            process_album()
+        )
+
         return
 
 
