@@ -213,6 +213,16 @@ async def handle_message(message: Message):
         await finish(message)
         return
 
+    if message.text:
+
+        await bot.send_message(
+            chat_id=ADMIN_CHAT_ID,
+            text=f"{message.text}\n\n{ADMIN_INFO.strip()}",
+            link_preview_options=LinkPreviewOptions(is_disabled=True)
+        )
+
+        await finish(message)
+        return
 
 
 async def main():
