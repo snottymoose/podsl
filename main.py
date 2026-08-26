@@ -33,7 +33,7 @@ dp = Dispatcher()
 
 ADMIN_INFO = """
 👍 - Ставлю «лосяру». 👍
-👎 - Отдай юз
+👎 - Я расист
 
 <a href="https://t.me/AfterwakePODSLUSHANO">@ПОДСЛУШКА</a> // <a href="https://t.me/AfterwakePODSLUSHANO_bot">@БОТ</a> // <a href="https://t.me/afterwakesmp">@АФТЕРВЕЙК🌶🌶🌶</a>
 """
