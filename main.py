@@ -62,8 +62,7 @@ async def send_admin_info(text, user_id=None):
     return await bot.send_message(
         chat_id=ADMIN_CHAT_ID,
         text=text,
-        link_preview_options=LinkPreviewOptions(is_disabled=True),
-        reply_markup=reply_keyboard(user_id) if user_id else None
+        link_preview_options=LinkPreviewOptions(is_disabled=True)
     )
 
 
@@ -131,6 +130,7 @@ async def admin_message_handler(message: Message):
         if message.text:
             await bot.send_message(
                 chat_id=user_id,
+                text=message.text
             )
 
         elif message.photo:
@@ -222,28 +222,19 @@ async def handle_message(message: Message):
                     if msg.photo:
                         await bot.send_photo(
                             chat_id=ADMIN_CHAT_ID,
-                            photo=msg.photo[-1].file_id,
-                            reply_markup=reply_keyboard(
-                                first.from_user.id
-                            )
+                            photo=msg.photo[-1].file_id
                         )
 
                     elif msg.video:
                         await bot.send_video(
                             chat_id=ADMIN_CHAT_ID,
-                            video=msg.video.file_id,
-                            reply_markup=reply_keyboard(
-                                first.from_user.id
-                            )
+                            video=msg.video.file_id
                         )
 
                     elif msg.document:
                         await bot.send_document(
                             chat_id=ADMIN_CHAT_ID,
-                            document=msg.document.file_id,
-                            reply_markup=reply_keyboard(
-                                first.from_user.id
-                            )
+                            document=msg.document.file_id
                         )
 
                 await send_user_info(first.from_user)
@@ -272,8 +263,7 @@ async def handle_message(message: Message):
         await bot.send_photo(
             chat_id=ADMIN_CHAT_ID,
             photo=message.photo[-1].file_id,
-            caption=caption,
-            reply_markup=reply_keyboard(message.from_user.id)
+            caption=caption
         )
 
         await finish(message)
@@ -291,8 +281,7 @@ async def handle_message(message: Message):
         await bot.send_video(
             chat_id=ADMIN_CHAT_ID,
             video=message.video.file_id,
-            caption=caption,
-            reply_markup=reply_keyboard(message.from_user.id)
+            caption=caption
         )
 
         await finish(message)
@@ -310,8 +299,7 @@ async def handle_message(message: Message):
         await bot.send_document(
             chat_id=ADMIN_CHAT_ID,
             document=message.document.file_id,
-            caption=caption,
-            reply_markup=reply_keyboard(message.from_user.id)
+            caption=caption
         )
 
         await finish(message)
@@ -323,8 +311,7 @@ async def handle_message(message: Message):
         await bot.send_message(
             chat_id=ADMIN_CHAT_ID,
             text=f"{message.text}\n\n{ADMIN_INFO.strip()}",
-            link_preview_options=LinkPreviewOptions(is_disabled=True),
-            reply_markup=reply_keyboard(message.from_user.id)
+            link_preview_options=LinkPreviewOptions(is_disabled=True)
         )
 
         await finish(message)
