@@ -71,7 +71,6 @@ async def send_user_info(user):
     return await bot.send_message(
         chat_id=ADMIN_CHAT_ID,
         text=(
-            f"👤 <b>Пользователь:</b>\n"
             f"имя: {user.full_name}\n"
             f"юз: {'@' + user.username if user.username else '-'}\n"
             f"тг айди: <code>{user.id}</code>"
