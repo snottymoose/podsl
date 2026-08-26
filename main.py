@@ -158,7 +158,7 @@ async def admin_message_handler(message: Message):
             await message.answer("тип сообщения не поддерживается")
             return
 
-        await message.answer("отправлено")
+        await message.answer("отпрвавоено")
 
         del admin_reply_to[admin_id]
 
