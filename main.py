@@ -131,7 +131,6 @@ async def admin_message_handler(message: Message):
         if message.text:
             await bot.send_message(
                 chat_id=user_id,
-                text=f"<b>ответ:</b>\n\n{message.text}"
             )
 
         elif message.photo:
@@ -159,7 +158,7 @@ async def admin_message_handler(message: Message):
             await message.answer("тип сообщения не поддерживается")
             return
 
-        await message.answer("отпрвавоено")
+        await message.answer("отправлено")
 
         del admin_reply_to[admin_id]
 
